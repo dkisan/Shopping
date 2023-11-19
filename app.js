@@ -8,6 +8,9 @@ const errorController = require('./controllers/error');
 
 const sequelize = require('./util/database');
 
+const Product = require('./models/product')
+const Shopuser = require('./models/shopUser')
+
 const app = express();
 
 app.use(cors())
@@ -19,10 +22,21 @@ const shopRoutes = require('./routes/shop');
 const bookinguserRoutes = require('./routes/user');
 const expenseRoutes = require('./routes/exp');
 
-app.use(bodyParser.json({force:true}));
+app.use(bodyParser.urlencoded({ extended: true }));
+// app.use(bodyParser.json({ force: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+Product.belongsTo(Shopuser)
+Shopuser.hasMany(Product)
 
+app.use((req, res, next) => {
+    Shopuser.findByPk(1)
+        .then((user) => {
+            req.user = user
+            next()
+        })
+        .catch(err => console.log(err))
+})
 
 app.use('/admin', adminRoutes);
 app.use('/booking', bookinguserRoutes);
@@ -31,8 +45,23 @@ app.use(shopRoutes);
 
 app.use(errorController.get404);
 
-sequelize.sync()
-.then(()=>{
-    app.listen(3000);
-})
-.catch(err=>console.log(err))
+sequelize
+    //   .sync({ force: true })
+    .sync()
+    .then(result => {
+        return Shopuser.findByPk(1);
+        // console.log(result);
+    })
+    .then(user => {
+        if (!user) {
+            return Shopuser.create({ name: 'Max', email: 'test@test.com' });
+        }
+        return user;
+    })
+    .then(user => {
+        // console.log(user);
+        app.listen(3000);
+    })
+    .catch(err => {
+        console.log(err);
+    });
