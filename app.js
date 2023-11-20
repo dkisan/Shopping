@@ -23,9 +23,10 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const bookinguserRoutes = require('./routes/user');
 const expenseRoutes = require('./routes/exp');
+const inventoryRoutes = require('./routes/inventory');
 
-app.use(bodyParser.urlencoded({ extended: true }));
-// app.use(bodyParser.json({ force: true }));
+// app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 Product.belongsTo(Shopuser)
@@ -49,6 +50,7 @@ app.use((req, res, next) => {
 app.use('/admin', adminRoutes);
 app.use('/booking', bookinguserRoutes);
 app.use('/exp', expenseRoutes);
+app.use('/inventory', inventoryRoutes);
 app.use(shopRoutes);
 
 app.use(errorController.get404);

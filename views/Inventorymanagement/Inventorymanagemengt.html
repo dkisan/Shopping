@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management</title>
+</head>
+
+<body>
+    <h1 style="text-align: center;">Inventory Management</h1>
+    <div style="display: flex; margin: auto; width: max-content; padding-top: 2vh;">
+        <form action="#" onsubmit="addItemHandler(event)">
+            <div style="display: flex; gap: 5px;">
+                <div style="display: flex; flex-direction: column;">
+                    <label for="">Item Name</label>
+                    <input type="text" name="" id="itemname">
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                    <label for="">Description</label>
+                    <input type="text" name="" id="description">
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                    <label for="">Price</label>
+                    <input type="number" name="" id="price">
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                    <label for="">Quantity</label>
+                    <input type="number" name="" id="quantity">
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                <button type="submit" style="height: max-content; margin-top: 25%;">Add Item</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div style="display: flex; margin: auto; width: max-content; padding-top: 2vh;">
+        <div>
+            <h1 style="text-align: center;">Stock List</h1>
+            <hr>
+
+            <table style="width: 100%; text-align: center;">
+                <thead>
+                    <th>Item Name</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th colspan="3">Actions</th>
+                </thead>
+                <tbody id="inventorylist">
+                    
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+
+    <script>
+        const itemname = document.getElementById('itemname')
+        const description = document.getElementById('description')
+        const price = document.getElementById('price')
+        const quantity = document.getElementById('quantity')
+        const inventorylist = document.getElementById('inventorylist')
+
+        const backendurl = 'http://localhost:3000/inventory'
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            axios.get(`${backendurl}/getinventory`)
+                .then(res => {
+                    let d = res.data
+                    for (let i = 0; i < d.length; i++) {
+                        createChild(d[i])
+                    }
+                })
+                .catch(err => {
+                    alert('something went wrong')
+                })
+        })
+
+        function addItemHandler(e) {
+            e.preventDefault()
+            let stock = {
+                itemname: itemname.value,
+                description: description.value,
+                price: price.value,
+                quantity: quantity.value
+            }
+
+            axios.post(`${backendurl}/addinventory`, stock)
+                .then(res => {
+                    window.location.reload()
+                }).catch(err => {
+                    alert('something went wrong')
+                })
+
+            console.log(itemname.value, description.value, price.value, quantity.value)
+        }
+
+        function buyFunction(e, val) {
+            e.preventDefault()
+
+            const prodId = e.target.parentElement.parentElement.getAttribute('id')
+
+            const obj = {
+                prodId: prodId,
+                val: val
+            }
+
+            axios.put(`${backendurl}/updateinventory`, obj)
+                .then(res => {
+                    window.location.reload()
+                }).catch(err => {
+                    alert('something went wrong')
+                })
+
+            console.log(val, prodId)
+        }
+
+        function createChild(obj) {
+            const tr = document.createElement('tr')
+            tr.setAttribute('id', obj.id)
+            const td = document.createElement('td')
+            const td1 = document.createElement('td')
+            const td2 = document.createElement('td')
+            const td3 = document.createElement('td')
+            const td4 = document.createElement('td')
+            const td5 = document.createElement('td')
+            const td6 = document.createElement('td')
+            td.appendChild(document.createTextNode(`${obj.itemname}  `))
+            td1.appendChild(document.createTextNode(`${obj.description}`))
+            td2.appendChild(document.createTextNode(`${obj.price} Rs  `))
+            td3.appendChild(document.createTextNode(`${obj.quantity}  `))
+            
+            let buy1 = document.createElement('button')
+            let buy2 = document.createElement('button')
+            let buy3 = document.createElement('button')
+
+            buy1.setAttribute('onclick', 'buyFunction(event,1)')
+            buy2.setAttribute('onclick', 'buyFunction(event,2)')
+            buy3.setAttribute('onclick', 'buyFunction(event,3)')
+            
+            buy1.appendChild(document.createTextNode('Buy 1'))
+            buy2.appendChild(document.createTextNode('Buy 2'))
+            buy3.appendChild(document.createTextNode('Buy 3'))
+
+            td4.appendChild(buy1)
+            td5.appendChild(buy2)
+            td6.appendChild(buy3)
+            
+            tr.appendChild(td)
+            tr.appendChild(td1)
+            tr.appendChild(td2)
+            tr.appendChild(td3)
+            tr.appendChild(td4)
+            tr.appendChild(td4)
+            tr.appendChild(td5)
+            tr.appendChild(td6)
+            
+            inventorylist.appendChild(tr)
+
+
+
+        }
+
+
+
+    </script>
+
+</body>
+
+</html>
