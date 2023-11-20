@@ -10,6 +10,8 @@ const sequelize = require('./util/database');
 
 const Product = require('./models/product')
 const Shopuser = require('./models/shopUser')
+const Cart = require('./models/cart')
+const CartItem = require('./models/cart-item')
 
 const app = express();
 
@@ -28,6 +30,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 Product.belongsTo(Shopuser)
 Shopuser.hasMany(Product)
+
+Shopuser.hasOne(Cart)
+Cart.belongsTo(Shopuser)
+
+Cart.belongsToMany(Product,{through:CartItem})
+Product.belongsToMany(Cart,{through:CartItem})
 
 app.use((req, res, next) => {
     Shopuser.findByPk(1)
@@ -59,6 +67,10 @@ sequelize
         return user;
     })
     .then(user => {
+        user.createCart()
+        // console.log(user);
+    })
+    .then(cart => {
         // console.log(user);
         app.listen(3000);
     })
